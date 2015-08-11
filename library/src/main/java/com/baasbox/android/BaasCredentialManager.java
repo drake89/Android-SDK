@@ -32,8 +32,9 @@ import java.util.Set;
  * Created by Andrea Tortorella on 22/01/14.
  */
 class BaasCredentialManager {
-// ------------------------------ FIELDS ------------------------------
+    // ------------------------------ FIELDS ------------------------------
     private static final String DISK_PREFERENCES_NAME = "BAAS_USER_INFO_PREFERENCES";
+    private static final String ID_KEY = "ID_KEY";
     private static final String USER_NAME_KEY = "USER_NAME_KEY";
     private static final String PASSWORD_KEY = "PASSWORD_KEY";
     private static final String SESSION_KEY = "SESSION_KEY";
@@ -49,7 +50,7 @@ class BaasCredentialManager {
     private volatile boolean loaded = false;
     private BaasUser current;
 
-// --------------------------- CONSTRUCTORS ---------------------------
+    // --------------------------- CONSTRUCTORS ---------------------------
     public BaasCredentialManager(BaasBox box, Context context) {
         this.box = box;
         this.diskCache = context.getSharedPreferences(DISK_PREFERENCES_NAME, Context.MODE_PRIVATE);
@@ -62,6 +63,7 @@ class BaasCredentialManager {
         if (userMap == null) return null;
         String username = (String) userMap.get(USER_NAME_KEY);
         if (username == null) return null;
+        String id = (String) userMap.get(ID_KEY);
         String password = (String) userMap.get(PASSWORD_KEY);
         String signupDate = (String) userMap.get(DATE_KEY);
         String status = (String) userMap.get(STATUS_KEY);
@@ -71,7 +73,7 @@ class BaasCredentialManager {
         String profileString = (String) userMap.get(PROFILE_KEY);
         String social = (String) userMap.get(SOCIAL_NETWORK_KEY);
         JsonObject profile = JsonObject.decode(profileString);
-        BaasUser user = new BaasUser(username, password, signupDate, status, token, roles, profile);
+        BaasUser user = new BaasUser(id, username, password, signupDate, status, token, roles, profile);
         if (social != null) {
             user.social = social;
         }
@@ -166,6 +168,7 @@ class BaasCredentialManager {
     }
 
     private void persist(BaasUser user) {
+        String id = user.getId();
         String username = user.getName();
         String password = user.getPassword();
         String status = user.getStatus();
@@ -179,6 +182,7 @@ class BaasCredentialManager {
         }
         SharedPreferences.Editor edit = diskCache.edit()
                 .putString(USER_NAME_KEY, username)
+                .putString(ID_KEY, id)
                 .putString(PASSWORD_KEY, password)
                 .putString(STATUS_KEY, status)
                 .putString(DATE_KEY, date)

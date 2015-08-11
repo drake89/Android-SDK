@@ -71,13 +71,14 @@ public class BaasUser implements Parcelable {
     private JsonObject friendVisibleData;
     private JsonObject registeredVisibleData;
     private JsonObject publicVisibleData;
+    private String id;
     private String username;
     private String password;
     private String authToken;
     private String signupDate;
     private String status;
 
-// --------------------------- CONSTRUCTORS ---------------------------
+    // --------------------------- CONSTRUCTORS ---------------------------
     private BaasUser(String username) {
         super();
         if (TextUtils.isEmpty(username)) throw new IllegalArgumentException("username cannot be empty");
@@ -98,6 +99,7 @@ public class BaasUser implements Parcelable {
     }
 
     private void init(JsonObject user) {
+        this.id = user.getString("id");
         JsonObject accountData = user.getObject("user");
         this.username = accountData.getString("name");
         this.roles.clear();
@@ -131,6 +133,7 @@ public class BaasUser implements Parcelable {
 
     BaasUser(Parcel source) {
         super();
+        this.id = source.readString();
         this.username = source.readString();
         this.signupDate = source.readString();
         this.status = source.readString();
@@ -157,7 +160,8 @@ public class BaasUser implements Parcelable {
         }
     }
 
-    BaasUser(String username, String password, String signupDate, String status, String token, JsonArray roles, JsonObject profile) {
+    BaasUser(String id, String username, String password, String signupDate, String status, String token, JsonArray roles, JsonObject profile) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.signupDate = signupDate;
@@ -492,6 +496,15 @@ public class BaasUser implements Parcelable {
 // --------------------- GETTER / SETTER METHODS ---------------------
 
     /**
+     * Returns the id assigned to the user by BaasBox server
+     *
+     * @return a {@link java.lang.String} representing the id of the user
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
      * Returns the password of this user, if there is one.
      *
      * @return a {@link java.lang.String} representing the password of the user.
@@ -526,6 +539,7 @@ public class BaasUser implements Parcelable {
 
     private JsonObject toJson() {
         JsonObject object = new JsonObject();
+        object.put("id", id);
         object.put("username", username);
         object.put("password", password);
         object.put("token", authToken);
@@ -548,6 +562,7 @@ public class BaasUser implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(username);
         dest.writeString(signupDate);
         dest.writeString(status);
@@ -980,9 +995,9 @@ public class BaasUser implements Parcelable {
                     .put("password", password);
         }
         object.put(Scope.PRIVATE.visibility, privateData)
-              .put(Scope.FRIEND.visibility, friendVisibleData)
-              .put(Scope.REGISTERED.visibility, registeredVisibleData)
-              .put(Scope.PUBLIC.visibility, publicVisibleData);
+                .put(Scope.FRIEND.visibility, friendVisibleData)
+                .put(Scope.REGISTERED.visibility, registeredVisibleData)
+                .put(Scope.PUBLIC.visibility, publicVisibleData);
         return object;
     }
 
